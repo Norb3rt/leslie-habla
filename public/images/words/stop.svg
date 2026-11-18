@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+    <rect width="160" height="160" rx="32" fill="#FFE4E6"/>
+    <!-- Octagon stop sign -->
+    <polygon points="58,24 102,24 136,58 136,102 102,136 58,136 24,102 24,58" fill="#EF4444" stroke="#7F1D1D" stroke-width="5.5" stroke-linejoin="round"/>
+    <!-- Open raised hand inside -->
+    <path d="M64 112C54 112 48 104 48 92V76C48 72 51 70 54 70C57 70 60 72 60 76V84V56C60 52 63 49 66 49C69 49 72 52 72 56V80V50C72 46 75 43 78 43C81 43 84 46 84 50V80V54C84 50 87 47 90 47C93 47 96 50 96 54V86L103 76C106 72 111 73 112 77C113 81 108 92 103 101C98 109 91 112 80 112H64Z" fill="#FFFFFF" stroke="#7F1D1D" stroke-width="4" stroke-linejoin="round"/>
+  </svg>

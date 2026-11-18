@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+    <rect width="160" height="160" rx="32" fill="#EDE9FE"/>
+    <!-- Life preserver / helping hands heart badge -->
+    <circle cx="80" cy="80" r="52" fill="#FFFFFF" stroke="#4C1D95" stroke-width="5.5"/>
+    <circle cx="80" cy="80" r="24" fill="#EDE9FE" stroke="#4C1D95" stroke-width="5"/>
+    <!-- Red/violet rescue bands -->
+    <path d="M58 34L68 58M92 58L102 34M126 58L102 68M102 92L126 102M102 126L92 102M68 102L58 126M34 102L58 92M58 68L34 58" stroke="#8B5CF6" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="80" cy="80" r="52" stroke="#4C1D95" stroke-width="5.5"/>
+    <circle cx="80" cy="80" r="24" stroke="#4C1D95" stroke-width="5"/>
+  </svg>

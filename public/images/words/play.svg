@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+    <rect width="160" height="160" rx="32" fill="#FFEDD5"/>
+    <!-- Colorful beach/play ball -->
+    <circle cx="80" cy="80" r="52" fill="#F97316" stroke="#7C2D12" stroke-width="5.5"/>
+    <path d="M80 28C98 48 98 112 80 132" stroke="#7C2D12" stroke-width="5"/>
+    <path d="M80 28C62 48 62 112 80 132" stroke="#7C2D12" stroke-width="5"/>
+    <path d="M28 80C52 66 108 66 132 80" stroke="#7C2D12" stroke-width="5"/>
+    <circle cx="80" cy="50" r="11" fill="#FDE047" stroke="#7C2D12" stroke-width="4.5"/>
+  </svg>

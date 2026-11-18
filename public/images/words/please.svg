@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+    <rect width="160" height="160" rx="32" fill="#FEF3C7"/>
+    <!-- Warm heart with gentle hands -->
+    <path d="M80 126C80 126 32 96 32 62C32 45 45 34 60 34C70 34 76 40 80 47C84 40 90 34 100 34C115 34 128 45 128 62C128 96 80 126 80 126Z" fill="#F43F5E" stroke="#881337" stroke-width="5.5" stroke-linejoin="round"/>
+    <path d="M52 54C47 58 45 64 46 70" stroke="#FDA4AF" stroke-width="5" stroke-linecap="round"/>
+  </svg>

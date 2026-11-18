@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+    <rect width="160" height="160" rx="32" fill="#E0F2FE"/>
+    <!-- Flagpole -->
+    <path d="M44 30V134" stroke="#0F172A" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="44" cy="28" r="6" fill="#F59E0B" stroke="#0F172A" stroke-width="4"/>
+    <!-- Waving checkered finish flag -->
+    <path d="M44 36H124V92H44V36Z" fill="#FFFFFF" stroke="#0F172A" stroke-width="5" stroke-linejoin="round"/>
+    <rect x="44" y="36" width="26" height="28" fill="#0284C7"/>
+    <rect x="96" y="36" width="28" height="28" fill="#0284C7"/>
+    <rect x="70" y="64" width="26" height="28" fill="#0284C7"/>
+    <path d="M44 36H124V92H44V36Z" stroke="#0F172A" stroke-width="5" stroke-linejoin="round"/>
+    <!-- Sparkle stars -->
+    <path d="M114 114L118 122L126 126L118 130L114 138L110 130L102 126L110 122L114 114Z" fill="#FBBF24" stroke="#92400E" stroke-width="3" stroke-linejoin="round"/>
+  </svg>

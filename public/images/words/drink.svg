@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" fill="none">
+    <rect width="160" height="160" rx="32" fill="#CCFBF1"/>
+    <!-- Bent drinking straw -->
+    <path d="M90 62L104 28L128 24" stroke="#F43F5E" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Tumbler cup -->
+    <path d="M44 56H116L106 132C105 137 100 140 95 140H65C60 140 55 137 54 132L44 56Z" fill="#FFFFFF" stroke="#134E4A" stroke-width="5" stroke-linejoin="round"/>
+    <!-- Refreshing blue water inside -->
+    <path d="M48 82C60 76 72 86 84 82C96 78 104 82 112 80L105 131C104 134 101 136 96 136H64C59 136 56 134 55 131L48 82Z" fill="#38BDF8"/>
+    <path d="M44 56H116L106 132C105 137 100 140 95 140H65C60 140 55 137 54 132L44 56Z" stroke="#134E4A" stroke-width="5" stroke-linejoin="round"/>
+    <rect x="38" y="48" width="84" height="12" rx="6" fill="#2DD4BF" stroke="#134E4A" stroke-width="5"/>
+  </svg>

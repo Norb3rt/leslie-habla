@@ -1,0 +1,6 @@
+{
+  "name": "PictoVoice AAC — Bilingual Picture Communication Board",
+  "description": "An offline-capable, touch-friendly bilingual (English/Spanish) AAC picture button communication board for children using Web Speech API and a single structured JSON vocabulary file.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
