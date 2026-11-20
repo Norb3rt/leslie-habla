@@ -16,10 +16,11 @@ import {
   sanitizeSpokenText,
   getAutoOpenFolderForItem,
   getLocalizedSentenceItems,
+  shouldIgnoreRepeatTap,
 } from './aacBoardLogic';
 import { scoreVoiceQuality } from './speechService';
 
-test('DEFAULT_VOCABULARY contains the exact 12 required core words, 8 quick phrases, and 6 category folders including Talk, People, and Places', () => {
+test('DEFAULT_VOCABULARY contains the exact 12 required core words, 8 quick phrases, and 7 category folders including Talk, People, Places, and Colors', () => {
   const buttons = DEFAULT_VOCABULARY.buttons;
   assert.equal(buttons.length, 12);
 
@@ -58,11 +59,17 @@ test('DEFAULT_VOCABULARY contains the exact 12 required core words, 8 quick phra
     expectedQuickPhrasesEn
   );
 
-  const expectedFoldersEn = ['Talk', 'Food', 'Feelings', 'People', 'Places', 'Play'];
+  const expectedFoldersEn = ['Talk', 'Food', 'Feelings', 'People', 'Places', 'Play', 'Colors'];
   assert.deepEqual(
     DEFAULT_VOCABULARY.folders.map((f) => f.en),
     expectedFoldersEn
   );
+
+  const colorItems = getItemsForFolder(DEFAULT_VOCABULARY.folderItems, 'colors');
+  assert.equal(colorItems.length, 11);
+  assert.equal(colorItems[0].en, 'red');
+  assert.equal(colorItems[0].es, 'rojo');
+  assert.ok(colorItems.every((c) => /^#[0-9A-Fa-f]{6}$/.test(c.swatch ?? '')));
 
   const talkItems = getItemsForFolder(DEFAULT_VOCABULARY.folderItems, 'talk');
   assert.deepEqual(
@@ -149,7 +156,9 @@ test('verifyCaregiverPin validates 4-digit PIN and formatVocabularyAsOneLineJson
   const formatted = formatVocabularyAsOneLineJson(DEFAULT_VOCABULARY);
   const parsed = JSON.parse(formatted);
   assert.equal(parsed.quickPhrases.length, 8);
-  assert.equal(parsed.folders.length, 6);
+  assert.equal(parsed.folders.length, 7);
+  assert.ok(parsed.intro?.es.includes('Leslie Navarrete'));
+  assert.ok(parsed.intro?.en.includes('Leslie Navarrete'));
   assert.equal(sanitizeSpokenText('Can I have ___?'), 'Can I have?');
   assert.equal(sanitizeSpokenText('¿Podemos ir a ___?'), '¿Podemos ir a?');
 });
@@ -242,10 +251,40 @@ test('scoreVoiceQuality ranks free Natural/Neural and Google voices above roboti
     voiceURI: 'ms-dalia-natural',
   } as SpeechSynthesisVoice;
 
+  const edgeMaleNatural = {
+    name: 'Microsoft Jorge Online (Natural) - Spanish (Mexico)',
+    lang: 'es-MX',
+    localService: false,
+    default: false,
+    voiceURI: 'ms-jorge-natural',
+  } as SpeechSynthesisVoice;
+
   const scoreRobotic = scoreVoiceQuality(roboticDesktop, 'es');
   const scoreGoogle = scoreVoiceQuality(googleChromeVoice, 'es');
-  const scoreNatural = scoreVoiceQuality(edgeNaturalVoice, 'es');
+  const scoreNaturalFemale = scoreVoiceQuality(edgeNaturalVoice, 'es');
+  const scoreNaturalMale = scoreVoiceQuality(edgeMaleNatural, 'es');
 
   assert.ok(scoreGoogle > scoreRobotic);
-  assert.ok(scoreNatural > scoreGoogle);
+  assert.ok(scoreNaturalFemale > scoreGoogle);
+  assert.ok(scoreNaturalFemale > scoreNaturalMale);
+});
+
+test('shouldIgnoreRepeatTap blocks rapid duplicate taps on same button and allows different buttons or delayed taps', () => {
+  assert.equal(shouldIgnoreRepeatTap(null, 'word:eat', 1000, 500), false);
+  assert.equal(
+    shouldIgnoreRepeatTap({ key: 'word:eat', timestamp: 1000 }, 'word:eat', 1300, 500),
+    true
+  );
+  assert.equal(
+    shouldIgnoreRepeatTap({ key: 'word:eat', timestamp: 1000 }, 'word:eat', 1550, 500),
+    false
+  );
+  assert.equal(
+    shouldIgnoreRepeatTap({ key: 'word:eat', timestamp: 1000 }, 'word:drink', 1100, 500),
+    false
+  );
+  assert.equal(
+    shouldIgnoreRepeatTap({ key: 'word:eat', timestamp: 1000 }, 'word:eat', 1050, 0),
+    false
+  );
 });

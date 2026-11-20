@@ -1,5 +1,6 @@
 {
   "boardMeta": { "id": "core-12-board", "version": "2.1.0", "columns": 4, "rows": 3, "defaultLanguage": "en", "supportedLanguages": ["en", "es"], "caregiverPin": "1234" },
+  "intro": { "labelEn": "Hi, I'm Leslie", "labelEs": "Hola, soy Leslie", "en": "Hi, my name is Leslie Navarrete. I use this tablet to talk.", "es": "Hola, me llamo Leslie Navarrete. Uso esta tableta para hablar.", "icon": "👋" },
   "buttons": [
     { "id": "i-want", "slot": 1, "category": "core", "colorTheme": "amber", "image": "/images/words/i-want.svg", "en": { "label": "I want", "spoken": "I want", "audio": "/audio/en/i-want.wav" }, "es": { "label": "Yo quiero", "spoken": "Yo quiero", "audio": "/audio/es/i-want.wav" } },
     { "id": "more", "slot": 2, "category": "descriptor", "colorTheme": "sky", "image": "/images/words/more.svg", "en": { "label": "more", "spoken": "more", "audio": "/audio/en/more.wav" }, "es": { "label": "más", "spoken": "más", "audio": "/audio/es/more.wav" } },
@@ -30,7 +31,8 @@
     { "id": "feelings", "en": "Feelings", "es": "Sentimientos", "icon": "😊", "colorTheme": "amber" },
     { "id": "people", "en": "People", "es": "Personas", "icon": "👨‍👩‍👧", "colorTheme": "violet" },
     { "id": "places", "en": "Places", "es": "Lugares", "icon": "🏠", "colorTheme": "sky" },
-    { "id": "play", "en": "Play", "es": "Jugar", "icon": "🧸", "colorTheme": "orange" }
+    { "id": "play", "en": "Play", "es": "Jugar", "icon": "🧸", "colorTheme": "orange" },
+    { "id": "colors", "en": "Colors", "es": "Colores", "icon": "🎨", "colorTheme": "rose" }
   ],
   "folderItems": [
     { "id": "talk-help-me", "folderId": "talk", "en": "Can you help me?", "es": "¿Me puedes ayudar?", "icon": "🙋" },
@@ -85,6 +87,17 @@
     { "id": "play-draw", "folderId": "play", "en": "draw", "es": "dibujar", "icon": "🖍️", "inPhrase": { "en": "to draw", "es": "dibujar" } },
     { "id": "play-bubbles", "folderId": "play", "en": "bubbles", "es": "burbujas", "icon": "🫧", "inPhrase": { "en": "some bubbles", "es": "burbujas" } },
     { "id": "play-puzzle", "folderId": "play", "en": "puzzle", "es": "rompecabezas", "icon": "🧩", "inPhrase": { "en": "a puzzle", "es": "un rompecabezas" } },
-    { "id": "play-swing", "folderId": "play", "en": "swing", "es": "columpio", "icon": "🎠", "inPhrase": { "en": "the swing", "es": "el columpio" } }
+    { "id": "play-swing", "folderId": "play", "en": "swing", "es": "columpio", "icon": "🎠", "inPhrase": { "en": "the swing", "es": "el columpio" } },
+    { "id": "color-red", "folderId": "colors", "en": "red", "es": "rojo", "icon": "🔴", "swatch": "#EF4444" },
+    { "id": "color-blue", "folderId": "colors", "en": "blue", "es": "azul", "icon": "🔵", "swatch": "#3B82F6" },
+    { "id": "color-yellow", "folderId": "colors", "en": "yellow", "es": "amarillo", "icon": "🟡", "swatch": "#FACC15" },
+    { "id": "color-green", "folderId": "colors", "en": "green", "es": "verde", "icon": "🟢", "swatch": "#22C55E" },
+    { "id": "color-orange", "folderId": "colors", "en": "orange", "es": "naranja", "icon": "🟠", "swatch": "#F97316" },
+    { "id": "color-purple", "folderId": "colors", "en": "purple", "es": "morado", "icon": "🟣", "swatch": "#A855F7" },
+    { "id": "color-pink", "folderId": "colors", "en": "pink", "es": "rosa", "icon": "🩷", "swatch": "#F472B6" },
+    { "id": "color-brown", "folderId": "colors", "en": "brown", "es": "café", "icon": "🟤", "swatch": "#92400E" },
+    { "id": "color-black", "folderId": "colors", "en": "black", "es": "negro", "icon": "⚫", "swatch": "#1E293B" },
+    { "id": "color-white", "folderId": "colors", "en": "white", "es": "blanco", "icon": "⚪", "swatch": "#FFFFFF" },
+    { "id": "color-gray", "folderId": "colors", "en": "gray", "es": "gris", "icon": "🔘", "swatch": "#94A3B8" }
   ]
 }

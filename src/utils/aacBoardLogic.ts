@@ -54,6 +54,7 @@ export interface FolderWordItem {
   en: string;
   es: string;
   icon: string;
+  swatch?: string;
   inPhrase?: InPhraseText;
   openFolderId?: string;
 }
@@ -68,8 +69,17 @@ export interface BoardMeta {
   caregiverPin?: string;
 }
 
+export interface IntroConfig {
+  labelEn: string;
+  labelEs: string;
+  en: string;
+  es: string;
+  icon: string;
+}
+
 export interface VocabularyData {
   boardMeta: BoardMeta;
+  intro?: IntroConfig;
   buttons: VocabButton[];
   quickPhrases: QuickPhrase[];
   folders: CategoryFolder[];
@@ -127,6 +137,7 @@ export function sanitizeSpokenText(text: string): string {
  */
 export type MappedVocabButton = VocabButton & {
   iconEmoji?: string;
+  swatch?: string;
   inPhrase?: InPhraseText;
 };
 
@@ -152,6 +163,7 @@ export function createButtonMap(
         colorTheme: folderThemeMap.get(item.folderId) ?? 'sky',
         image: '',
         iconEmoji: item.icon,
+        swatch: item.swatch,
         inPhrase: item.inPhrase,
         en: { label: item.en, spoken: sanitizeSpokenText(item.en), audio: '' },
         es: { label: item.es, spoken: sanitizeSpokenText(item.es), audio: '' },
@@ -186,6 +198,25 @@ export function getAutoOpenFolderForItem(
   return item.openFolderId ?? DEFAULT_AUTO_OPEN_FOLDERS[item.id] ?? null;
 }
 
+export interface TapRecord {
+  key: string;
+  timestamp: number;
+}
+
+/**
+ * Anti-double-tap filter: ignores accidental rapid repeat taps on the same button
+ * within guardMs while allowing immediate taps on different buttons.
+ */
+export function shouldIgnoreRepeatTap(
+  lastTap: TapRecord | null,
+  buttonKey: string,
+  nowMs: number,
+  guardMs: number
+): boolean {
+  if (!guardMs || guardMs <= 0 || !lastTap) return false;
+  return lastTap.key === buttonKey && nowMs - lastTap.timestamp < guardMs;
+}
+
 /**
  * Verifies the 4-digit caregiver PIN.
  */
@@ -202,6 +233,9 @@ export function verifyCaregiverPin(entered: string, targetPin = '1234'): boolean
 export function formatVocabularyAsOneLineJson(data: VocabularyData): string {
   const lines: string[] = ['{'];
   lines.push(`  "boardMeta": ${JSON.stringify(data.boardMeta)},`);
+  if (data.intro) {
+    lines.push(`  "intro": ${JSON.stringify(data.intro)},`);
+  }
 
   const formatArray = <T>(key: string, arr: T[], isLast: boolean) => {
     lines.push(`  "${key}": [`);

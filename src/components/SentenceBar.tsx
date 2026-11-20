@@ -4,7 +4,7 @@ import { Language, VocabButton } from '../utils/aacBoardLogic';
 
 export interface SentenceDisplayItem {
   instanceId: string;
-  button: VocabButton & { iconEmoji?: string };
+  button: VocabButton & { iconEmoji?: string; swatch?: string };
   label: string;
   spoken: string;
   audio: string;
@@ -72,7 +72,22 @@ export const SentenceBar: React.FC<SentenceBarProps> = ({
                   }`}
                 >
                   <div className="w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center">
-                    {item.button.iconEmoji ? (
+                    {item.button.swatch ? (
+                      <svg
+                        viewBox="0 0 64 64"
+                        className="w-7 h-7 sm:w-8 sm:h-8 drop-shadow-xs"
+                        aria-hidden="true"
+                      >
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="27"
+                          fill={item.button.swatch}
+                          stroke="#334155"
+                          strokeWidth="3.5"
+                        />
+                      </svg>
+                    ) : item.button.iconEmoji ? (
                       <span className="text-2xl sm:text-3xl leading-none" aria-hidden="true">
                         {item.button.iconEmoji}
                       </span>

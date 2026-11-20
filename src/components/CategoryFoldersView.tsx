@@ -68,7 +68,7 @@ export const CategoryFoldersView: React.FC<CategoryFoldersViewProps> = ({
           </span>
         </button>
 
-        {/* LEVEL 1: The 6 Category Folders (Talk, Food, Feelings, People, Places, Play) */}
+        {/* LEVEL 1: The 7 Category Folders (Talk, Food, Feelings, People, Places, Play, Colors) */}
         {!activeFolder &&
           folders.map((folder) => {
             const label = lang === 'es' ? folder.es : folder.en;
@@ -128,9 +128,35 @@ export const CategoryFoldersView: React.FC<CategoryFoldersViewProps> = ({
                 >
                   <span>{secondary}</span>
                 </div>
-                <div className="text-4xl sm:text-5xl leading-none my-1" aria-hidden="true">
-                  {item.icon}
-                </div>
+                {item.swatch ? (
+                  <div className="my-1 flex items-center justify-center" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 64 64"
+                      className="w-12 h-12 sm:w-14 sm:h-14 drop-shadow-xs"
+                    >
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="27"
+                        fill={item.swatch}
+                        stroke="#334155"
+                        strokeWidth="3"
+                      />
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="23"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.45)"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="text-4xl sm:text-5xl leading-none my-1" aria-hidden="true">
+                    {item.icon}
+                  </div>
+                )}
                 <span className="text-sm sm:text-lg lg:text-xl font-bold text-slate-900 font-display text-center leading-tight line-clamp-2 max-w-full">
                   {label}
                 </span>

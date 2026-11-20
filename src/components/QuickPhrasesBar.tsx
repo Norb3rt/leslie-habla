@@ -91,8 +91,8 @@ export const QuickPhrasesBar: React.FC<QuickPhrasesBarProps> = ({
                 className="block text-[11px] font-medium text-indigo-800 whitespace-nowrap"
               >
                 {lang === 'es'
-                  ? 'Hablar · Personas · Más'
-                  : 'Talk · People · Places'}
+                  ? 'Hablar · Colores · Más'
+                  : 'Talk · Colors · More'}
               </span>
             </div>
           </button>

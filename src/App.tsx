@@ -12,6 +12,7 @@ import {
   Language,
   QuickPhrase,
   SentenceToken,
+  TapRecord,
   VocabButton,
   VocabularyData,
   appendWordToSentence,
@@ -23,6 +24,7 @@ import {
   getLocalizedSentenceItems,
   removeLastWordFromSentence,
   sanitizeSpokenText,
+  shouldIgnoreRepeatTap,
 } from './utils/aacBoardLogic';
 import { speakText } from './utils/speechService';
 import { SentenceBar, SentenceDisplayItem } from './components/SentenceBar';
@@ -43,6 +45,7 @@ const STORAGE_KEYS = {
   VOICE_EN: 'pictovoice_voice_en_v1',
   CUSTOM_RECORDINGS: 'pictovoice_custom_recordings_v1',
   TACTILE_CHIME: 'pictovoice_tactile_chime_v2',
+  TAP_GUARD_MS: 'pictovoice_tap_guard_ms_v1',
   CAREGIVER_PIN: 'pictovoice_caregiver_pin_v1',
 };
 
@@ -121,11 +124,23 @@ export default function App() {
     }
   });
 
+  const [tapGuardMs, setTapGuardMs] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.TAP_GUARD_MS);
+      if (saved === null) return 500;
+      const parsed = Number(saved);
+      return Number.isFinite(parsed) && parsed >= 0 && parsed <= 2000 ? parsed : 500;
+    } catch {
+      return 500;
+    }
+  });
+
   const [sentence, setSentence] = useState<SentenceToken[]>([]);
   const [activeButtonId, setActiveButtonId] = useState<string | null>(null);
   const [activePhraseId, setActivePhraseId] = useState<string | null>(null);
   const [activeSpeakingInstanceId, setActiveSpeakingInstanceId] = useState<string | null>(null);
   const [isSpeakingSentence, setIsSpeakingSentence] = useState(false);
+  const [isSpeakingIntro, setIsSpeakingIntro] = useState(false);
 
   // "More" Category Folders navigation state
   const [isMoreFoldersOpen, setIsMoreFoldersOpen] = useState(false);
@@ -148,6 +163,16 @@ export default function App() {
   const [isCaregiverModalOpen, setIsCaregiverModalOpen] = useState(false);
 
   const timersRef = useRef<number[]>([]);
+  const lastTapRef = useRef<TapRecord | null>(null);
+
+  const checkAndRecordTap = (key: string): boolean => {
+    const now = Date.now();
+    if (shouldIgnoreRepeatTap(lastTapRef.current, key, now, tapGuardMs)) {
+      return true;
+    }
+    lastTapRef.current = { key, timestamp: now };
+    return false;
+  };
 
   useEffect(() => {
     try {
@@ -216,6 +241,14 @@ export default function App() {
 
   useEffect(() => {
     try {
+      localStorage.setItem(STORAGE_KEYS.TAP_GUARD_MS, String(tapGuardMs));
+    } catch {
+      // Ignore storage write errors
+    }
+  }, [tapGuardMs]);
+
+  useEffect(() => {
+    try {
       if (/^\d{4}$/.test(caregiverPin)) {
         localStorage.setItem(STORAGE_KEYS.CAREGIVER_PIN, caregiverPin);
       }
@@ -266,6 +299,7 @@ export default function App() {
   };
 
   const handleSelectWord = (button: VocabButton) => {
+    if (checkAndRecordTap(`word:${button.id}`)) return;
     clearScheduledTimers();
     setIsSpeakingSentence(false);
     setActiveSpeakingInstanceId(null);
@@ -293,6 +327,7 @@ export default function App() {
   };
 
   const handleSelectFolderWord = (item: FolderWordItem, _folder: CategoryFolder) => {
+    if (checkAndRecordTap(`folder-item:${item.id}`)) return;
     clearScheduledTimers();
     setIsSpeakingSentence(false);
     setActiveSpeakingInstanceId(null);
@@ -318,12 +353,14 @@ export default function App() {
     const rawText = lang === 'es' ? item.es : item.en;
     const spokenText = sanitizeSpokenText(rawText);
     setActiveButtonId(item.id);
+    const customRec = customRecordings[`${lang}:${item.id}`];
 
     speakText(spokenText, {
       lang,
       rate: speechRate,
       pitch: speechPitch,
       preferredVoiceURI: activePreferredVoiceURI || undefined,
+      customAudioDataUrl: customRec,
       playTactileChime,
       onEnd: () => {
         setActiveButtonId((prev) => (prev === item.id ? null : prev));
@@ -332,6 +369,7 @@ export default function App() {
   };
 
   const handleSpeakQuickPhrase = (phrase: QuickPhrase) => {
+    if (checkAndRecordTap(`phrase:${phrase.id}`)) return;
     clearScheduledTimers();
     setIsSpeakingSentence(false);
     setActiveSpeakingInstanceId(null);
@@ -351,7 +389,33 @@ export default function App() {
     });
   };
 
+  const handleSpeakIntro = () => {
+    const intro = vocabulary.intro;
+    if (!intro) return;
+    if (checkAndRecordTap('intro:leslie')) return;
+    clearScheduledTimers();
+    setIsSpeakingSentence(false);
+    setActiveSpeakingInstanceId(null);
+    setActiveButtonId(null);
+    setActivePhraseId(null);
+
+    const spokenText = lang === 'es' ? intro.es : intro.en;
+    setIsSpeakingIntro(true);
+
+    speakText(spokenText, {
+      lang,
+      rate: speechRate,
+      pitch: speechPitch,
+      preferredVoiceURI: activePreferredVoiceURI || undefined,
+      playTactileChime,
+      onEnd: () => {
+        setIsSpeakingIntro(false);
+      },
+    });
+  };
+
   const handleTapSentenceWord = (item: SentenceDisplayItem) => {
+    if (checkAndRecordTap(`sentence-word:${item.instanceId}`)) return;
     clearScheduledTimers();
     setIsSpeakingSentence(false);
     setActiveSpeakingInstanceId(item.instanceId);
@@ -376,6 +440,7 @@ export default function App() {
 
   const handleSpeakSentence = () => {
     if (localizedSentenceItems.length === 0) return;
+    if (checkAndRecordTap('speak-sentence')) return;
 
     clearScheduledTimers();
     const fullText = buildSpokenSentenceText(sentence, buttonMap, lang);
@@ -464,19 +529,28 @@ export default function App() {
       {/* Top Bar: 3-Zone Contract */}
       <header className="w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-xs shrink-0">
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-4 sm:gap-8">
-          {/* Zone 1: Brand Title */}
-          <a
-            href="#main-board"
-            onClick={(e) => {
-              e.preventDefault();
-              setAwaitingSlotCompletion(false);
-              setIsMoreFoldersOpen(false);
-              setActiveFolderId(null);
-            }}
-            className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 font-display whitespace-nowrap shrink-0"
-          >
-            PictoVoice
-          </a>
+          {/* Zone 1: One-Tap Introduction Button (brand title hidden for clean focus) */}
+          <div className="flex items-center shrink-0 min-w-0">
+            {vocabulary.intro && (
+              <button
+                type="button"
+                data-testid="leslie-intro-button"
+                onClick={handleSpeakIntro}
+                className={`min-h-[38px] px-2.5 sm:px-3.5 py-1.5 rounded-xl border-2 text-xs sm:text-sm font-bold font-display flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 ${
+                  isSpeakingIntro
+                    ? 'bg-rose-200 border-rose-500 text-rose-950 ring-2 ring-rose-400'
+                    : 'bg-rose-50 hover:bg-rose-100 border-rose-300 text-rose-950 shadow-xs active:translate-y-0.5'
+                }`}
+              >
+                <span className="text-base leading-none" aria-hidden="true">
+                  {vocabulary.intro.icon}
+                </span>
+                <span>
+                  {lang === 'es' ? vocabulary.intro.labelEs : vocabulary.intro.labelEn}
+                </span>
+              </button>
+            )}
+          </div>
 
           {/* Zone 2: Bilingual Toggle (English / Español) */}
           <div
@@ -649,6 +723,8 @@ export default function App() {
         onDeleteCustomRecording={handleDeleteCustomRecording}
         playTactileChime={playTactileChime}
         onToggleTactileChime={setPlayTactileChime}
+        tapGuardMs={tapGuardMs}
+        onChangeTapGuardMs={setTapGuardMs}
         onAddCustomButton={handleAddCustomButton}
         onResetVocabulary={handleResetVocabulary}
       />

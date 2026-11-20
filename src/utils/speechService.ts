@@ -42,9 +42,106 @@ export function playAudioAsset(audioPath?: string, volume = 0.25): void {
   }
 }
 
+const FEMALE_VOICE_KEYWORDS = [
+  'dalia',
+  'paulina',
+  'paloma',
+  'mónica',
+  'monica',
+  'sabina',
+  'elena',
+  'laura',
+  'lucía',
+  'lucia',
+  'sofía',
+  'sofia',
+  'salomé',
+  'salome',
+  'andrea',
+  'camila',
+  'catalina',
+  'valeria',
+  'ximena',
+  'tania',
+  'karla',
+  'maría',
+  'maria',
+  'helena',
+  'jenny',
+  'aria',
+  'ana',
+  'ava',
+  'emma',
+  'michelle',
+  'samantha',
+  'victoria',
+  'karen',
+  'zoë',
+  'zoe',
+  'allison',
+  'susan',
+  'zira',
+  'hazel',
+  'libby',
+  'sonia',
+  'natasha',
+  'clara',
+  'female',
+  'mujer',
+  'femenina',
+];
+
+const MALE_VOICE_KEYWORDS = [
+  'jorge',
+  'diego',
+  'raúl',
+  'raul',
+  'pablo',
+  'carlos',
+  'miguel',
+  'álvaro',
+  'alvaro',
+  'david',
+  'mark',
+  'guy',
+  'andrew',
+  'brian',
+  'christopher',
+  'eric',
+  'roger',
+  'steffan',
+  'daniel',
+  'alex',
+  'fred',
+  'reed',
+  'ralph',
+  'tom',
+  'aaron',
+  'arthur',
+  'oliver',
+  'martin',
+  'juan',
+  'enrique',
+  'tomás',
+  'tomas',
+  'emilio',
+  'alonso',
+  'gerardo',
+  'rodrigo',
+  'sebastián',
+  'sebastian',
+  'mateo',
+  'male',
+  'hombre',
+];
+
+function hasVoiceKeyword(nameLower: string, keywords: string[]): boolean {
+  return keywords.some((kw) => new RegExp(`(^|[^a-záéíóúñü])${kw}([^a-záéíóúñü]|$)`, 'i').test(nameLower));
+}
+
 /**
  * Scores a browser SpeechSynthesisVoice so that free Neural / Natural / Google / Enhanced
- * voices are always prioritized over old robotic OS desktop voices.
+ * female voices are always prioritized over male or legacy robotic desktop voices.
  */
 export function scoreVoiceQuality(voice: SpeechSynthesisVoice, targetLang: Language): number {
   const nameLower = voice.name.toLowerCase();
@@ -87,22 +184,11 @@ export function scoreVoiceQuality(voice: SpeechSynthesisVoice, targetLang: Langu
     score += 95;
   }
 
-  // Tier 3: Friendly high-clarity voices across platforms
-  if (
-    nameLower.includes('sabina') ||
-    nameLower.includes('dalia') ||
-    nameLower.includes('paulina') ||
-    nameLower.includes('mónica') ||
-    nameLower.includes('monica') ||
-    nameLower.includes('elena') ||
-    nameLower.includes('paloma') ||
-    nameLower.includes('aria') ||
-    nameLower.includes('jenny') ||
-    nameLower.includes('ana') ||
-    nameLower.includes('samantha') ||
-    nameLower.includes('ava')
-  ) {
-    score += 35;
+  // Tier 3: Prioritize natural female voices for Leslie
+  if (hasVoiceKeyword(nameLower, FEMALE_VOICE_KEYWORDS)) {
+    score += 55;
+  } else if (hasVoiceKeyword(nameLower, MALE_VOICE_KEYWORDS)) {
+    score -= 50;
   }
 
   // Penalize robotic legacy desktop synthesizers
@@ -197,11 +283,29 @@ export function selectBestVoice(
   return candidates[0] ?? null;
 }
 
+// Retain the currently speaking utterance so Chromium/WebKit GC does not drop playback
+let activeUtterance: SpeechSynthesisUtterance | null = null;
+
+// Pre-warm browser voice list so the very first tap uses the best available voice
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  try {
+    window.speechSynthesis.getVoices();
+    if (typeof window.speechSynthesis.addEventListener === 'function') {
+      window.speechSynthesis.addEventListener('voiceschanged', () => {
+        window.speechSynthesis.getVoices();
+      });
+    }
+  } catch {
+    // Ignore voice preload errors in restricted environments
+  }
+}
+
 /**
  * Speaks a single word or phrase using custom recorded audio (if provided) or
  * the highest-quality free Web Speech API voice available.
  */
 export function speakText(text: string, options: SpeechOptions): void {
+  const cleanText = (text ?? '').trim();
   const {
     lang,
     rate = 0.92,
@@ -213,6 +317,11 @@ export function speakText(text: string, options: SpeechOptions): void {
     onStart,
     onEnd,
   } = options;
+
+  if (!cleanText && !customAudioDataUrl) {
+    onEnd?.();
+    return;
+  }
 
   // If caregiver recorded a real human voice clip for this word, play it directly
   if (customAudioDataUrl && typeof window !== 'undefined' && typeof Audio !== 'undefined') {
@@ -240,9 +349,17 @@ export function speakText(text: string, options: SpeechOptions): void {
   }
 
   try {
-    window.speechSynthesis.cancel();
+    const synth = window.speechSynthesis;
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Only cancel when actually speaking or queued to avoid Chrome's cancel-before-speak swallow bug
+    if (synth.speaking || synth.pending) {
+      synth.cancel();
+    }
+    if (synth.paused) {
+      synth.resume();
+    }
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
     const chosenVoice = selectBestVoice(lang, preferredVoiceURI);
 
     if (chosenVoice) {
@@ -259,6 +376,9 @@ export function speakText(text: string, options: SpeechOptions): void {
     const finishOnce = () => {
       if (!finished) {
         finished = true;
+        if (activeUtterance === utterance) {
+          activeUtterance = null;
+        }
         onEnd?.();
       }
     };
@@ -269,11 +389,12 @@ export function speakText(text: string, options: SpeechOptions): void {
     utterance.onend = finishOnce;
     utterance.onerror = finishOnce;
 
+    activeUtterance = utterance;
     onStart?.();
-    window.speechSynthesis.speak(utterance);
+    synth.speak(utterance);
 
     // Safety fallback timer in case headless browser speechSynthesis never fires onend
-    const estimatedMs = Math.max(550, Math.min(3500, text.split(/\s+/).length * 420));
+    const estimatedMs = Math.max(550, Math.min(4000, cleanText.split(/\s+/).length * 460));
     setTimeout(finishOnce, estimatedMs);
   } catch {
     onStart?.();

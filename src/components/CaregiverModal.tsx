@@ -44,6 +44,8 @@ interface CaregiverModalProps {
   onDeleteCustomRecording: (key: string) => void;
   playTactileChime: boolean;
   onToggleTactileChime: (enabled: boolean) => void;
+  tapGuardMs: number;
+  onChangeTapGuardMs: (ms: number) => void;
   onAddCustomButton: (btn: VocabButton) => void;
   onResetVocabulary: () => void;
 }
@@ -81,6 +83,8 @@ export const CaregiverModal: React.FC<CaregiverModalProps> = ({
   onDeleteCustomRecording,
   playTactileChime,
   onToggleTactileChime,
+  tapGuardMs,
+  onChangeTapGuardMs,
   onAddCustomButton,
   onResetVocabulary,
 }) => {
@@ -313,8 +317,8 @@ export const CaregiverModal: React.FC<CaregiverModalProps> = ({
                 >
                   <option value="">
                     {lang === 'es'
-                      ? 'Automática (Mejor voz Natural / Google disponible)'
-                      : 'Auto (Best Natural / Google voice available)'}
+                      ? 'Automática (Mejor voz femenina Natural / Google)'
+                      : 'Auto (Best Natural / Google female voice)'}
                   </option>
                   {voicesEs.map((v) => (
                     <option key={v.voiceURI} value={v.voiceURI}>
@@ -350,8 +354,8 @@ export const CaregiverModal: React.FC<CaregiverModalProps> = ({
                 >
                   <option value="">
                     {lang === 'es'
-                      ? 'Automática (Mejor voz Natural / Google disponible)'
-                      : 'Auto (Best Natural / Google voice available)'}
+                      ? 'Automática (Mejor voz femenina Natural / Google)'
+                      : 'Auto (Best Natural / Google female voice)'}
                   </option>
                   {voicesEn.map((v) => (
                     <option key={v.voiceURI} value={v.voiceURI}>
@@ -437,6 +441,53 @@ export const CaregiverModal: React.FC<CaregiverModalProps> = ({
                     : 'Play tactile chime on tap'}
                 </span>
               </label>
+            </div>
+
+            {/* Anti-Double-Tap Filter */}
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span className="block text-xs sm:text-sm font-bold text-slate-900">
+                    {lang === 'es'
+                      ? 'Filtro anti-doble toque accidental'
+                      : 'Anti-double-tap filter'}
+                  </span>
+                  <span className="block text-xs text-slate-600">
+                    {lang === 'es'
+                      ? 'Ignora si se toca el mismo botón dos veces muy rápido por accidente.'
+                      : 'Ignores accidental rapid repeat taps on the same button.'}
+                  </span>
+                </div>
+                <div
+                  role="group"
+                  aria-label={
+                    lang === 'es'
+                      ? 'Tiempo del filtro anti-doble toque'
+                      : 'Anti-double-tap delay'
+                  }
+                  className="flex flex-wrap items-center gap-1 p-1 bg-slate-200/70 rounded-xl"
+                >
+                  {[
+                    { ms: 0, labelEn: 'Off', labelEs: 'Apagado' },
+                    { ms: 500, labelEn: 'Gentle (0.5s ★)', labelEs: 'Suave (0.5s ★)' },
+                    { ms: 800, labelEn: 'Medium (0.8s)', labelEs: 'Medio (0.8s)' },
+                    { ms: 1200, labelEn: 'Strong (1.2s)', labelEs: 'Fuerte (1.2s)' },
+                  ].map((opt) => (
+                    <button
+                      key={opt.ms}
+                      type="button"
+                      onClick={() => onChangeTapGuardMs(opt.ms)}
+                      className={`min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                        tapGuardMs === opt.ms
+                          ? 'bg-white text-slate-900 shadow-xs'
+                          : 'text-slate-700 hover:text-slate-900'
+                      }`}
+                    >
+                      {lang === 'es' ? opt.labelEs : opt.labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
